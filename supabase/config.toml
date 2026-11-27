@@ -1,0 +1,5 @@
+[project]
+id = "siyuiswtwfjzhixrrkyi"
+
+[functions.make-webhook]
+verify_jwt = false

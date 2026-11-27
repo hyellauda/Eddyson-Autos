@@ -49,8 +49,9 @@ Some gallery entries show a year or generation (for example, 2021 Toyota Corolla
 
 - Stock and exact fitment are **not confirmed** by the website. Do not promise that a part is available or compatible.
 - Ask for the vehicle **make, model and year**; request the VIN if available. For a part enquiry, also ask which part is needed and any relevant engine/trim details.
-- The site provides a parts enquiry form that opens a prefilled WhatsApp message. It requests name, phone number, vehicle make, model/year/VIN (if available) and a message.
-- The website is static and states that it does not store or submit enquiry information to its own server. The form continues in WhatsApp.
+- The site provides a parts enquiry form that stores the customer's name, phone number, email, vehicle make, model/year/VIN (if available), requested part and message in the existing Supabase `public.inquiries` table.
+- The homepage contact form stores the customer's name, phone number, email and optional message in `public.inquiries`.
+- Website form submissions are managed from the admin dashboard and are not sent to WhatsApp. A separate WhatsApp contact link is also available.
 - Do not provide prices, delivery estimates, warranties, or confirmed fitment unless the team confirms them.
 
 ## Contact

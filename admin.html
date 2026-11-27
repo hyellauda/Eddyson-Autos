@@ -19,8 +19,9 @@
     .shell { width:min(94vw,1440px); margin:auto; }
     .topbar { height:76px; border-bottom:1px solid var(--line); }
     .nav { height:100%; display:flex; align-items:center; justify-content:space-between; gap:20px; }
-    .brand { display:flex; align-items:center; gap:10px; font-size:17px; font-weight:800; letter-spacing:-.06em; }
-    .brand-mark { display:grid; place-items:center; width:21px; height:21px; border:2px solid var(--gold); border-radius:50%; color:var(--gold); font:700 11px/1 "DM Mono",monospace; }
+    .topbar .nav.shell { width:min(97vw,1440px); }
+    .brand { display:flex; align-items:center; flex:none; }
+    .brand-logo { display:block; width:148px; height:auto; }
     .back-link { color:var(--muted); font:9px "DM Mono",monospace; letter-spacing:.08em; }
     .back-link:hover { color:var(--gold); }
     main { padding:clamp(34px,6vw,78px) 0 70px; }
@@ -47,6 +48,9 @@
     .dashboard-head h1 { margin-bottom:0; }
     .head-actions { display:flex; align-items:center; gap:16px; }
     .signed-in { max-width:240px; overflow:hidden; color:var(--muted); font:9px "DM Mono",monospace; text-overflow:ellipsis; white-space:nowrap; }
+    .dashboard-nav { display:flex; gap:8px; margin:0 0 22px; border-bottom:1px solid var(--line); }
+    .dashboard-nav button { padding:12px 14px; border:0; border-bottom:2px solid transparent; background:transparent; color:var(--muted); font:9px "DM Mono",monospace; letter-spacing:.08em; }
+    .dashboard-nav button[aria-current="page"] { border-bottom-color:var(--gold); color:var(--gold); }
     .metrics { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; margin-bottom:18px; }
     .metric { min-width:0; padding:20px; }
     .metric-label { color:var(--muted); font:9px "DM Mono",monospace; letter-spacing:.1em; text-transform:uppercase; }
@@ -60,25 +64,45 @@
     .table-panel { min-width:0; overflow:hidden; }
     .table-panel .panel-heading { padding:20px 20px 0; }
     .table-status { padding:0 20px; color:var(--muted); font-size:11px; }
+    .table-status[data-error="true"] { color:var(--red); }
     .table-wrap { width:100%; overflow:auto; }
-    table { width:100%; border-collapse:collapse; font-size:11px; text-align:left; }
+    table { width:max-content; min-width:100%; border-collapse:collapse; font-size:11px; text-align:left; }
     th,td { max-width:280px; padding:12px 15px; border-top:1px solid rgba(255,255,255,.1); vertical-align:top; overflow-wrap:anywhere; }
-    th { color:var(--gold); font:9px "DM Mono",monospace; letter-spacing:.04em; text-transform:uppercase; }
+    th { color:var(--gold); font:9px "DM Mono",monospace; letter-spacing:.04em; text-transform:uppercase; white-space:nowrap; overflow-wrap:normal; }
     td { color:#d5d9d5; }
     .table-note { padding:12px 20px 18px; color:#8f9994; font-size:10px; }
+    .customer-toolbar { display:flex; align-items:flex-end; justify-content:space-between; gap:18px; margin:25px 0 15px; }
+    .customer-search { display:grid; gap:8px; width:min(100%,460px); color:var(--muted); font:9px "DM Mono",monospace; letter-spacing:.08em; text-transform:uppercase; }
+    .customer-search input { text-transform:none; }
+    .customer-count { color:var(--muted); font:10px "DM Mono",monospace; }
+    .customer-table th,.customer-table td { min-width:125px; }
+    .customer-table th:first-child,.customer-table td:first-child { min-width:170px; }
+    .customer-table .customer-message { min-width:250px; white-space:pre-wrap; }
+    .customer-table .status-cell { min-width:150px; }
+    .customer-status { min-height:36px; padding:0 10px; border:1px solid var(--line); background:#0d1212; color:#fff; font:11px Manrope,Arial,sans-serif; }
+    .customer-status:focus { border-color:var(--gold); outline:2px solid rgba(216,182,109,.18); }
+    .customer-pagination { display:flex; align-items:center; justify-content:space-between; gap:14px; padding:15px 20px 19px; }
+    .customer-pagination p { margin:0; color:var(--muted); font:10px "DM Mono",monospace; }
+    .customer-pagination-actions { display:flex; gap:8px; }
+    .customer-pagination .button { min-height:36px; }
     .error-card { margin:16px 0; padding:14px 16px; border:1px solid rgba(255,170,160,.4); background:rgba(255,100,85,.06); color:var(--red); font-size:12px; line-height:1.6; }
     @media (max-width:680px) {
       .shell { width:min(92vw,540px); }
       .topbar { height:68px; }
-      .brand { font-size:14px; }
+      .topbar .nav.shell { width:96vw; }
+      .brand-logo { width:128px; }
       .back-link { font-size:8px; }
       .dashboard-head { align-items:flex-start; flex-direction:column; }
       .head-actions { width:100%; justify-content:space-between; }
+      .dashboard-nav button { padding:12px 8px; font-size:8px; }
       .metrics { grid-template-columns:1fr; gap:9px; }
       .metric { display:flex; align-items:center; justify-content:space-between; padding:15px 17px; }
       .metric-value { margin:0; font-size:28px; }
       .chart-panel { padding:17px; }
       .chart-wrap { height:230px; }
+      .customer-toolbar { align-items:stretch; flex-direction:column; }
+      .customer-search { width:100%; }
+      .customer-pagination { align-items:flex-start; flex-direction:column; padding-right:15px; padding-left:15px; }
     }
     @media (prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto !important; } }
   </style>
@@ -86,7 +110,7 @@
 <body>
   <header class="topbar">
     <nav class="nav shell" aria-label="Primary navigation">
-      <a class="brand" href="index.html"><span class="brand-mark">E</span>EDDYSON AUTOS</a>
+      <a class="brand" href="index.html" aria-label="Eddyson Autos home"><img class="brand-logo" src="assets/eddyson-autos-logo.png" alt="Eddyson Autos - Everything Automotive"></a>
       <a class="back-link" href="index.html">BACK TO SITE &rarr;</a>
     </nav>
   </header>
@@ -120,8 +144,13 @@
           <button class="button button--quiet" id="logout-button" type="button">LOG OUT</button>
         </div>
       </div>
-      <p class="lede">Live record totals and up to 100 rows available under your Supabase row-level security policies.</p>
+      <nav class="dashboard-nav" aria-label="Dashboard pages">
+        <button id="overview-tab" type="button" aria-current="page">OVERVIEW</button>
+        <button id="customers-tab" type="button">CUSTOMER ENQUIRIES</button>
+      </nav>
       <div class="error-card" id="dashboard-error" role="status" hidden></div>
+      <section id="overview-page" aria-label="Business overview">
+      <p class="lede">Live record totals and up to 100 rows available under your Supabase row-level security policies.</p>
       <div class="metrics" aria-label="Record totals">
         <article class="metric panel"><span class="metric-label">Profiles</span><strong class="metric-value" id="profiles-count">—</strong></article>
         <article class="metric panel"><span class="metric-label">Cars</span><strong class="metric-value" id="cars-count">—</strong></article>
@@ -151,6 +180,43 @@
           <p class="table-note" id="inquiries-note"></p>
         </section>
       </div>
+      </section>
+      <section id="customers-page" aria-labelledby="customers-title" hidden>
+        <div class="eyebrow">Customer records</div>
+        <h2 id="customers-title">Customer enquiries</h2>
+        <p class="lede">Search and manage customer enquiries submitted through the website. Status changes are restricted by row-level security to authorized administrators.</p>
+        <div class="customer-toolbar">
+          <label class="customer-search" for="customer-search">Search name, phone or email
+            <input id="customer-search" type="search" autocomplete="off" maxlength="120" placeholder="Type to search customers">
+          </label>
+          <span class="customer-count" id="customer-count" aria-live="polite"></span>
+        </div>
+        <p class="table-status" id="customer-status" role="status" aria-live="polite">Waiting for data…</p>
+        <div class="table-panel panel">
+          <div class="table-wrap">
+            <table class="customer-table" id="customers-table">
+              <thead>
+                <tr>
+                  <th scope="col">Customer name</th>
+                  <th scope="col">Phone</th>
+                  <th scope="col">Email</th>
+                  <th scope="col">Submission date</th>
+                  <th scope="col">Enquiry details</th>
+                  <th scope="col">Enquiry status</th>
+                </tr>
+              </thead>
+              <tbody id="customers-table-body"></tbody>
+            </table>
+          </div>
+          <div class="customer-pagination">
+            <p id="customer-page-summary"></p>
+            <div class="customer-pagination-actions">
+              <button class="button button--quiet" id="customer-previous" type="button">PREVIOUS</button>
+              <button class="button button--quiet" id="customer-next" type="button">NEXT</button>
+            </div>
+          </div>
+        </div>
+      </section>
     </section>
   </main>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
@@ -170,7 +236,27 @@
     const dashboardError = document.querySelector('#dashboard-error');
     const refreshButton = document.querySelector('#refresh-button');
     const logoutButton = document.querySelector('#logout-button');
+    const overviewTab = document.querySelector('#overview-tab');
+    const customersTab = document.querySelector('#customers-tab');
+    const overviewPage = document.querySelector('#overview-page');
+    const customersPage = document.querySelector('#customers-page');
+    const customerSearch = document.querySelector('#customer-search');
+    const customerTableBody = document.querySelector('#customers-table-body');
+    const customerStatus = document.querySelector('#customer-status');
+    const customerCount = document.querySelector('#customer-count');
+    const customerPageSummary = document.querySelector('#customer-page-summary');
+    const customerPrevious = document.querySelector('#customer-previous');
+    const customerNext = document.querySelector('#customer-next');
     const totals = Object.fromEntries(TABLES.map(name => [name, 0]));
+    const CUSTOMER_PAGE_SIZE = 20;
+    const CUSTOMER_STATUSES = [
+      { value: 'new', label: 'New' },
+      { value: 'in_progress', label: 'In progress' },
+      { value: 'resolved', label: 'Resolved' }
+    ];
+    let customerPage = 0;
+    let customerRequestId = 0;
+    let customerSearchTimer;
     let recordsChart;
 
     function setLoginMessage(text, isError = false) {
@@ -187,6 +273,112 @@
       dashboardView.hidden = true;
       loginView.hidden = false;
       setLoginMessage(message, isError);
+    }
+
+    function showDashboardPage(page) {
+      const showingCustomers = page === 'customers';
+      overviewPage.hidden = showingCustomers;
+      customersPage.hidden = !showingCustomers;
+      overviewTab.setAttribute('aria-current', showingCustomers ? 'false' : 'page');
+      customersTab.setAttribute('aria-current', showingCustomers ? 'page' : 'false');
+      if (showingCustomers) void loadCustomers();
+    }
+
+    function setCustomerStatus(message, isError = false) {
+      customerStatus.textContent = message;
+      if (isError) customerStatus.setAttribute('data-error', 'true');
+      else customerStatus.removeAttribute('data-error');
+    }
+
+    function formatSubmissionDate(value) {
+      if (!value) return '—';
+      const date = new Date(value);
+      return Number.isNaN(date.getTime()) ? '—' : date.toLocaleString();
+    }
+
+    async function loadCustomers() {
+      if (!supabase) return;
+      const requestId = ++customerRequestId;
+      const searchTerm = customerSearch.value.trim();
+      const start = customerPage * CUSTOMER_PAGE_SIZE;
+      setCustomerStatus('Loading customer records…');
+      customerPrevious.disabled = true;
+      customerNext.disabled = true;
+
+      let query = supabase.from('inquiries')
+        .select('id, full_name, phone, email, created_at, message, enquiry_status', { count: 'exact' })
+        .order('created_at', { ascending: false })
+        .range(start, start + CUSTOMER_PAGE_SIZE - 1);
+
+      if (searchTerm) {
+        const escapedTerm = searchTerm.replace(/[\\%_"]/g, character => `\\${character}`);
+        const pattern = `"%${escapedTerm}%"`;
+        query = query.or([
+          `full_name.ilike.${pattern}`,
+          `phone.ilike.${pattern}`,
+          `email.ilike.${pattern}`
+        ].join(','));
+      }
+
+      try {
+        const { data, error, count } = await query;
+        if (requestId !== customerRequestId) return;
+        if (error) {
+          customerTableBody.replaceChildren();
+          customerCount.textContent = '';
+          customerPageSummary.textContent = '';
+          setCustomerStatus(`Unable to load customer records: ${error.message}`, true);
+          return;
+        }
+
+        const rows = data || [];
+        const total = count ?? rows.length;
+        customerTableBody.replaceChildren();
+        rows.forEach(customer => {
+          const row = customerTableBody.insertRow();
+          [
+            customer.full_name || '—',
+            customer.phone || '—',
+            customer.email || '—',
+            formatSubmissionDate(customer.created_at)
+          ].forEach(value => {
+            row.insertCell().textContent = value;
+          });
+
+          const messageCell = row.insertCell();
+          messageCell.className = 'customer-message';
+          messageCell.textContent = customer.message || '—';
+
+          const statusCell = row.insertCell();
+          statusCell.className = 'status-cell';
+          const select = document.createElement('select');
+          select.className = 'customer-status';
+          select.dataset.inquiryId = customer.id;
+          select.dataset.currentStatus = customer.enquiry_status;
+          select.setAttribute('aria-label', `Enquiry status for ${customer.full_name || customer.email || 'customer'}`);
+          CUSTOMER_STATUSES.forEach(status => {
+            const option = document.createElement('option');
+            option.value = status.value;
+            option.textContent = status.label;
+            select.append(option);
+          });
+          select.value = customer.enquiry_status;
+          statusCell.append(select);
+        });
+
+        const pageCount = Math.max(1, Math.ceil(total / CUSTOMER_PAGE_SIZE));
+        customerCount.textContent = `${total.toLocaleString()} customer${total === 1 ? '' : 's'}`;
+        customerPageSummary.textContent = `Page ${customerPage + 1} of ${pageCount}`;
+        customerPrevious.disabled = customerPage === 0;
+        customerNext.disabled = (customerPage + 1) * CUSTOMER_PAGE_SIZE >= total;
+        setCustomerStatus(rows.length ? '' : searchTerm ? 'No customers match your search.' : 'No customer records found.');
+      } catch (error) {
+        if (requestId !== customerRequestId) return;
+        customerTableBody.replaceChildren();
+        customerCount.textContent = '';
+        customerPageSummary.textContent = '';
+        setCustomerStatus(`Unable to load customer records: ${error.message}`, true);
+      }
     }
 
     function formatCell(value) {
@@ -309,6 +501,54 @@
       updateChart();
     }
 
+    overviewTab.addEventListener('click', () => showDashboardPage('overview'));
+    customersTab.addEventListener('click', () => showDashboardPage('customers'));
+    customerSearch.addEventListener('input', () => {
+      customerPage = 0;
+      customerRequestId += 1;
+      setCustomerStatus('Searching customer records…');
+      window.clearTimeout(customerSearchTimer);
+      customerSearchTimer = window.setTimeout(() => void loadCustomers(), 250);
+    });
+    customerPrevious.addEventListener('click', () => {
+      if (customerPage === 0) return;
+      customerPage -= 1;
+      void loadCustomers();
+    });
+    customerNext.addEventListener('click', () => {
+      customerPage += 1;
+      void loadCustomers();
+    });
+    customerTableBody.addEventListener('change', async event => {
+      const select = event.target.closest('select[data-inquiry-id]');
+      if (!select) return;
+      const nextStatus = select.value;
+      const previousStatus = select.dataset.currentStatus;
+      if (!CUSTOMER_STATUSES.some(status => status.value === nextStatus)) {
+        select.value = previousStatus;
+        return;
+      }
+
+      select.disabled = true;
+      setCustomerStatus('Saving enquiry status…');
+      try {
+        const { data, error } = await supabase.from('inquiries')
+          .update({ enquiry_status: nextStatus })
+          .eq('id', select.dataset.inquiryId)
+          .select('id, enquiry_status')
+          .maybeSingle();
+        if (error) throw error;
+        if (!data) throw new Error('No customer record was updated. Check that you are signed in as an authorized administrator.');
+        select.dataset.currentStatus = nextStatus;
+        setCustomerStatus('Enquiry status updated.');
+      } catch (error) {
+        select.value = previousStatus;
+        setCustomerStatus(`Unable to update enquiry status: ${error.message}`, true);
+      } finally {
+        select.disabled = false;
+      }
+    });
+
     if (!supabase) {
       setupNote.hidden = false;
       loginForm.querySelector('button').disabled = true;
@@ -334,6 +574,7 @@
           setLoginMessage('This account is not authorized to access the admin dashboard.', true);
         } else {
           await loadDashboard(data.user);
+          if (!customersPage.hidden) await loadCustomers();
         }
         button.disabled = false;
       });
@@ -358,6 +599,8 @@
         } else {
           if (recordsChart) recordsChart.destroy();
           loginForm.reset();
+          customerTableBody.replaceChildren();
+          customerCount.textContent = '';
           showLogin('You have signed out.');
         }
         logoutButton.disabled = false;

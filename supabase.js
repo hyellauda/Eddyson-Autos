@@ -10,6 +10,29 @@ export const supabase = isConfigured
   ? createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
   : null;
 
+export async function notifyMake(payload) {
+  if (!supabase) {
+    console.error('Unable to queue Make.com event: Supabase is not configured.');
+    return;
+  }
+
+  let timeoutId;
+  try {
+    const result = await Promise.race([
+      supabase.functions.invoke('make-webhook', { body: payload }),
+      new Promise((_, reject) => {
+        timeoutId = setTimeout(() => reject(new Error('Timed out while queuing Make.com event.')), 5000);
+      })
+    ]);
+    const { error } = result;
+    if (error) console.error('Unable to queue Make.com event:', error.message);
+  } catch (error) {
+    console.error('Unable to queue Make.com event:', error);
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
 export async function saveProfile(user, metadata) {
   if (!supabase || !user) return { error: new Error('Supabase is not configured.') };
 
@@ -18,9 +41,41 @@ export async function saveProfile(user, metadata) {
     full_name: metadata.full_name || user.user_metadata?.full_name || '',
     phone: metadata.phone || user.user_metadata?.phone || '',
     email: user.email || ''
-  }).select('id, full_name, phone, email').single();
+  }, { onConflict: 'id' }).select('id, full_name, phone, email').single();
 
   return { data, error };
+}
+
+export async function saveInquiry({
+  full_name,
+  phone,
+  email,
+  message,
+  enquiry_type
+}) {
+  if (!supabase) return { error: new Error('Supabase is not configured.') };
+
+  const inquiry = {
+    full_name: String(full_name || '').trim(),
+    phone: String(phone || '').trim(),
+    email: String(email || '').trim(),
+    message: String(message || '').trim(),
+    enquiry_type,
+    enquiry_status: 'new'
+  };
+  const { error } = await supabase.from('inquiries').insert(inquiry);
+
+  if (!error) {
+    await notifyMake({
+      full_name: inquiry.full_name,
+      email: inquiry.email,
+      phone: inquiry.phone,
+      message: inquiry.message,
+      eventType: 'enquiry'
+    });
+  }
+
+  return { error };
 }
 
 async function updateNavigation(session) {

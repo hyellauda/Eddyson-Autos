@@ -1,3 +1,5 @@
+import { saveInquiry } from './supabase.js';
+
 (() => {
   const parts = [
     { id:'engine-block', name:'Engine block', category:'Engine', type:'Engine internal', description:'The structural core of an engine, with cylinder bores and mounting points that must match the exact engine code.', image:'https://thumb.wikimedia.org/wikipedia/commons/thumb/7/70/Chevrolet_small-block_engine_-_Automobile_Driving_Museum_-_El_Segundo%2C_CA_-_DSC01736.jpg/960px-Chevrolet_small-block_engine_-_Automobile_Driving_Museum_-_El_Segundo%2C_CA_-_DSC01736.jpg', alt:'Small-block automotive engine display', source:'https://commons.wikimedia.org/wiki/File:Chevrolet_small-block_engine_-_Automobile_Driving_Museum_-_El_Segundo,_CA_-_DSC01736.jpg', credit:'Wikimedia Commons' },
@@ -37,6 +39,8 @@
   const dialog = document.querySelector('#parts-enquiry-dialog');
   const enquiryForm = document.querySelector('#parts-enquiry-form');
   const enquiryDescription = document.querySelector('#parts-enquiry-description');
+  const enquiryStatus = document.querySelector('#parts-form-status');
+  const enquirySubmit = document.querySelector('#parts-form-submit');
   let visibleCount = pageSize;
   let selectedPart = null;
 
@@ -121,31 +125,45 @@
   });
   dialog.addEventListener('close', () => {
     enquiryForm.reset();
+    enquirySubmit.disabled = false;
+    enquiryStatus.textContent = '';
+    enquiryStatus.removeAttribute('data-error');
     selectedPart = null;
   });
-  enquiryForm.addEventListener('submit', event => {
+  enquiryForm.addEventListener('submit', async event => {
     event.preventDefault();
     if (!selectedPart || !enquiryForm.reportValidity()) return;
     const name = document.querySelector('#parts-customer-name').value.trim();
     const phone = document.querySelector('#parts-customer-phone').value.trim();
+    const email = document.querySelector('#parts-customer-email').value.trim();
     const make = document.querySelector('#parts-vehicle-make').value;
     const model = document.querySelector('#parts-vehicle-model').value.trim();
-    const message = document.querySelector('#parts-enquiry-message').value.trim();
-    const text = [
-      'Hello Eddyson Autos, I would like to enquire about a spare part.',
-      `Part: ${selectedPart.name}`,
-      `Name: ${name}`,
-      `Phone: ${phone}`,
+    const message = document.querySelector('#parts-enquiry-message').value;
+    const details = [
+      `Part requested: ${selectedPart.name}`,
       `Vehicle make: ${make}`,
       `Vehicle model/year/VIN: ${model}`,
-      `Message: ${message}`,
+      `Customer message: ${message}`,
       'Please confirm fitment and availability before order.'
     ].join('\n');
-    const url = `https://wa.me/2349157424129?text=${encodeURIComponent(text)}`;
-    const whatsapp = window.open(url, '_blank');
-    if (whatsapp) whatsapp.opener = null;
-    else window.location.assign(url);
-    dialog.close();
+    enquirySubmit.disabled = true;
+    enquiryStatus.removeAttribute('data-error');
+    enquiryStatus.textContent = 'Saving your parts enquiry…';
+    try {
+      const { error } = await saveInquiry({
+        full_name: name,
+        phone,
+        email,
+        message: details,
+        enquiry_type: 'parts'
+      });
+      if (error) throw error;
+      enquiryStatus.textContent = 'Thank you. Your parts enquiry has been saved for the Eddyson Autos team.';
+    } catch (error) {
+      enquiryStatus.setAttribute('data-error', 'true');
+      enquiryStatus.textContent = `Unable to save your parts enquiry: ${error.message}`;
+      enquirySubmit.disabled = false;
+    }
   });
 
   renderParts(true);

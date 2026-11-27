@@ -18,8 +18,9 @@
     .shell { width:min(90vw,1400px); margin:auto; }
     .topbar { position:absolute; z-index:10; inset:0 0 auto; height:82px; border-bottom:1px solid var(--line); }
     .nav { height:100%; display:flex; align-items:center; justify-content:space-between; gap:30px; }
-    .brand { display:flex; align-items:center; gap:10px; font-size:19px; font-weight:800; letter-spacing:-1px; }
-    .brand-mark { display:grid; place-items:center; width:21px; height:21px; border:2px solid var(--gold); border-radius:50%; color:var(--gold); font:700 11px/1 "DM Mono",monospace; }
+    .topbar .nav.shell { width:min(94vw,1400px); }
+    .brand { display:flex; align-items:center; flex:none; }
+    .brand-logo { display:block; width:156px; height:auto; }
     .nav-links { display:flex; align-items:center; gap:30px; margin-left:auto; font-size:10px; font-weight:800; letter-spacing:.1em; }
     .nav-links a:hover, .nav-links a[aria-current="page"] { color:var(--gold); }
     .auth-controls { display:flex; align-items:center; gap:10px; flex:none; font-size:9px; font-weight:800; letter-spacing:.06em; }
@@ -66,7 +67,7 @@
       .topbar { height:70px; }
       .nav-links, .nav .button--outline { display:none; }
       .nav { gap:10px; }
-      .brand { font-size:14px; }
+      .brand-logo { width:126px; }
       .auth-controls { gap:7px; font-size:8px; }
       .auth-controls [data-auth-user] { max-width:85px; }
       .menu-toggle { display:block; }
@@ -82,13 +83,13 @@
       footer.site-footer { grid-template-columns:1fr; gap:13px; padding:25px 0; }
       footer.site-footer span:last-child { text-align:left; }
     }
-    @media (max-width:390px) { .shell { width:calc(100% - 32px); } .nav { gap:6px; } .brand { font-size:12px; } .auth-controls { gap:4px; font-size:7px; } .auth-controls [data-auth-user] { max-width:54px; } .hero { min-height:530px; } h1 { font-size:51px; } }
+    @media (max-width:390px) { .shell { width:calc(100% - 32px); } .nav { gap:6px; } .brand-logo { width:116px; } .auth-controls { gap:4px; font-size:7px; } .auth-controls [data-auth-user] { max-width:54px; } .hero { min-height:530px; } h1 { font-size:51px; } }
   </style>
 </head>
 <body>
   <header class="topbar">
     <nav class="nav shell" aria-label="Primary navigation">
-      <a class="brand" href="index.html" aria-label="Eddyson Autos home"><span class="brand-mark">E</span>EDDYSON AUTOS</a>
+      <a class="brand" href="index.html" aria-label="Eddyson Autos home"><img class="brand-logo" src="assets/eddyson-autos-logo.png" alt="Eddyson Autos - Everything Automotive"></a>
       <div class="nav-links" id="nav-links">
         <a href="index.html#services">SERVICES</a>
         <a href="index.html#inventory">VEHICLES</a>
@@ -128,7 +129,7 @@
       <div class="shell"><div class="eyebrow" style="justify-content:center">We are ready to help</div><h2 id="contact-title">Let us earn your<br><em>five stars.</em></h2><p>Whether you need a vehicle, a repair, a service or the right spare part, our team is one message away.</p><a class="button button--gold" href="https://wa.me/2349157424129">WHATSAPP US <span class="arrow">&nearr;</span></a></div>
     </section>
   </main>
-  <footer class="site-footer shell"><a class="brand" href="index.html"><span class="brand-mark">E</span>EDDYSON AUTOS</a><span>&copy; 2026 EDDYSON AUTOS. ALL RIGHTS RESERVED.</span><span>EVERYTHING AUTOMOTIVE</span></footer>
+  <footer class="site-footer shell"><a class="brand" href="index.html" aria-label="Eddyson Autos home"><img class="brand-logo" src="assets/eddyson-autos-logo.png" alt="Eddyson Autos - Everything Automotive"></a><span>&copy; 2026 EDDYSON AUTOS. ALL RIGHTS RESERVED.</span><span>EVERYTHING AUTOMOTIVE</span></footer>
   <script>
     const navToggle = document.querySelector('#menu-toggle');
     const navLinks = document.querySelector('#nav-links');
